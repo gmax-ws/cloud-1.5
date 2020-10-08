@@ -1,0 +1,59 @@
+spring:
+  application:
+    name: config-server
+  cloud:
+#    bus:
+#      destination: cloud-config
+    config:
+      server:
+        git:
+#          uri: file:///${user.home}/config-repo
+          uri: https://bitbucket.org/marius-gligor/config-repo
+          username: marius-gligor
+          password: '{cipher}24a0f3994b6b08b136e16199958b1b4c84613b3fce6a7a1ceb804743aca8b1b9'
+#          force-pull: true
+#      monitor:
+#        github:
+#          enabled: false
+#        gitlab:
+#          enabled: false
+#        bitbucket:
+#          enabled: true
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: '{cipher}efc685687f9cbae23670ff364a29d896a8252bac45c78a143cce826a59c0914a'  
+#    addresses: localhost:5672
+
+# Encryption properties MUST be provided external by:
+# -Dencrypt.key= or ENCRYPT_KEY environment variable
+#
+# -- symetric --
+#encrypt:
+#  key: 8N6pVhqW1Fpx8g7o
+  
+# -- asymetric --
+# encrypt:
+#  key-store:
+#    location: classpath:/config-server.jks
+#    password: 56Ftn7j8
+#    alias: config-server-key
+#    secret: M89ui6tz
+    
+server:
+  port: 8888
+  
+security:
+  user:
+    name: config
+    password: '{cipher}d8a78a0a57e16e9cc4ac956a415efa6bc1b84a478a353a321a8d503c54aa6acd'
+  
+info:
+  component: Configuration
+  description: Configuration Server
+  
+logging:
+  file: ${spring.application.name}.log
+  path: /var/log/cloud/config-server

@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: order-app
+  cloud:
+    config:
+      enabled: false
+
+security:
+  oauth2:
+    client:
+      id: ob-order
+      grant-type: password
+      client-secret: '{cipher}a73951e7c212c5d2bd6523c158c482539ac9fdbbfc05b09170701552e6220ad6'
+      access-token-uri: http://localhost:8887/uaa/oauth/token
+
+server:
+  port: 8080
+  compression:
+    enabled: true
+    mime-types: application/json, application/xml, text/html, text/xml, text/plain
+
+info:
+  component: Order Application
+  description: Spring Boot - Order Application
+
+logging:
+  file: ${spring.application.name}.log
+  path: /var/log/cloud/app
+
+micro-services:
+  gateway: http://localhost:8765
+  order-service: inbound-order 

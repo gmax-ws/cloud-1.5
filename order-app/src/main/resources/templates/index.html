@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body ng-app="ob-order">
+	<h2 th:text="#{main.page.title}"/>
+	<div ng-controller="ObOrderController" class="container">
+		<hr/>
+		<h4 th:text="#{auth.auth}"/>
+		<label><b th:text="${username}" /></label> 
+		<input type="text" placeholder="Enter Username" ng-model="username" required="required" />
+		<label><b th:text="${password}" /></label>
+		<input type="password" placeholder="Enter Password" ng-model="password" required="required" />
+		<button ng-click="obData.doLogin()" th:text="#{login.button}"/>
+		<button ng-click="obData.doLogout()" th:text="#{logout.button}"/>
+		<button ng-click="obData.doRefreshToken()" th:text="#{refresh.token}"/>
+		<button onclick="popup()">...</button>
+		<pre style="color: green" th:text="#{response}"/>
+		<hr/>
+		<h4>Get Orders [Method = GET]</h4>
+		<div>{{obData.zuul}}/orders&nbsp;&nbsp;&nbsp;<button ng-click="obData.Orders()">Invoke</button></div>
+		<pre style="color: green">Response:{{obData.orders | json}}</pre>
+		<hr/>
+		<h4>Get Order [Method = GET]</h4>
+		<label>{{obData.zuul}}/order/</label> 
+		<input type="text" placeholder="Enter order ID" ng-model="orderId" size="32" required="required" />
+		<button ng-click="obData.Order()">Invoke</button>
+		<pre style="color: green">Response:{{obData.order | json}}</pre>
+		<hr/>
+		<h4>Create new Order [Method = POST]</h4>
+		<label>{{obData.zuul}}/order</label> 
+		<div>
+		<label>Description:</label> 
+		<input type="text" placeholder="Enter order description" ng-model="orderDescription" size="32" required="required" />
+		<button ng-click="obData.CreateOrder()">Invoke</button>
+		</div>
+		<pre style="color: green">Response:{{obData.createdOrder | json}}</pre>
+		<hr/>
+		<h4>Update Order [Method = PUT]</h4>
+		<label>{{obData.zuul}}/order</label> 
+		<div>
+		<label>Order ID:</label> 
+		<input type="text" placeholder="Enter order ID" ng-model="orderIdUpd" size="32" required="required" />
+		<label>Description:</label> 
+		<input type="text" placeholder="Enter order description" ng-model="orderDescriptionUpd" size="32" required="required" />
+		<button ng-click="obData.UpdateOrder()">Invoke</button>
+		</div>
+		<pre style="color: green">Response:{{obData.updatedOrder | json}}</pre>
+		<hr/>
+		<h4>Delete Order [Method = DELETE]</h4>
+		<label>{{obData.zuul}}/order/</label> 
+		<input type="text" placeholder="Enter order ID" ng-model="orderIdDelete" size="32" required="required" />
+		<button ng-click="obData.DeleteOrder()">Invoke</button>
+		<pre style="color: green">Response:{{obData.deletedOrder | json}}</pre>
+		<hr/>
+		<pre style="color: red">Error:{{obData.error | json}}</pre>
+	</div>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+	<script>
+		angular.module("ob-order", []).config(function ($httpProvider) {
+    			$httpProvider.defaults.withCredentials = true;
+    		//rest of route code
+			}).controller("ObOrderController",
+				function($scope, $http) {
+
+					$scope.obData = {};
+					$scope.obData.zuul = 'http://localhost:8765';
+
+					// authentication and authorization
+					$scope.obData.doLogin = function() {
+						delete $scope.obData.error;
+						delete $scope.obData.token;
+
+						var params = {
+							username : $scope.username,
+							password : $scope.password
+						};
+
+						var response = $http({
+							method : 'POST',
+							url : $scope.obData.zuul + '/oauth2/login',
+							data : params,
+							headers : {
+								'Content-Type' : 'application/json'
+							}
+						});
+
+						response.success(function(data, status, headers, config) {
+							var resp = {}
+							resp.status = status
+							resp.data = data
+							$scope.obData.token = resp;
+						});
+
+						response.error(function(data, status, headers,
+								config) {
+							$scope.obData.error = data;
+						});
+					};
+
+					$scope.obData.auth = function() {
+						auth_header = {
+							'Authorization' : $scope.obData.oauth2
+						}
+					}
+
+					$scope.obData.doLogout = function() {
+
+						var params = {};
+
+						var response = $http({
+							method : 'POST',
+							url : $scope.obData.zuul + '/oauth2/logout',
+							data : params,
+							headers : {
+								'Content-Type' : 'application/json'
+							}
+						});
+
+						response.success(function(data, status, headers, config) {
+							var resp = {}
+							resp.status = status
+							resp.data = data
+							$scope.obData.token = resp;
+							delete $scope.obData.error;
+							$scope.username = undefined
+							$scope.password = undefined
+						});
+
+						response.error(function(data, status, headers,
+								config) {
+							$scope.obData.error = data;
+						});
+					}
+					
+					// refresh token
+					$scope.obData.doRefreshToken = function() {
+						delete $scope.obData.error;
+
+						var params = {};
+
+						var response = $http({
+							method : 'POST',
+							url : $scope.obData.zuul + '/oauth2/refresh',
+							data : params,
+							headers : {
+								'Content-Type' : 'application/json'
+							}
+						});
+
+						response.success(function(data, status,
+								headers, config) {
+							var resp = {}
+							resp.status = status
+							resp.data = data
+
+							$scope.obData.token = resp;
+						});
+
+						response.error(function(data, status, headers,
+								config) {
+							$scope.obData.error = data;
+						});
+					};
+
+					// get orders							
+					$scope.obData.Orders = function() {
+						delete $scope.obData.orders;
+						delete $scope.obData.error;
+
+						var response = $http({
+							method : 'GET',
+							url : $scope.obData.zuul + '/inbound/orders',
+							data : {},
+							headers : {
+								'content-type' : 'application/json'
+							}
+						});
+
+						response.success(function(data, status,
+								headers, config) {
+							var resp = {}
+							resp.status = status
+							resp.data = data
+
+							$scope.obData.orders = resp;
+						});
+
+						response.error(function(data, status, headers,
+								config) {
+							var error = {
+								status : status,
+								details : data
+							}
+							$scope.obData.error = error;
+						});
+					}
+
+					// get order							
+					$scope.obData.Order = function() {
+						delete $scope.obData.order;
+						delete $scope.obData.error;
+
+						var response = $http({
+							method : 'GET',
+							url : $scope.obData.zuul + '/inbound/order/' + $scope.orderId,
+							data : {},
+							headers : {
+								'Content-Type' : 'application/json',
+							}
+						});
+
+						response.success(function(data, status,
+								headers, config) {
+							var resp = {}
+							resp.status = status
+							resp.data = data
+
+							$scope.obData.order = resp;
+						});
+
+						response.error(function(data, status, headers,
+								config) {
+							var error = {
+								status : status,
+								details : data
+							}
+							$scope.obData.error = error;
+						});
+					}
+					// create order							
+					$scope.obData.CreateOrder = function() {
+						delete $scope.obData.createdOrder;
+						delete $scope.obData.error;
+
+						var params = {
+							description : $scope.orderDescription
+						};
+
+						var response = $http({
+							method : 'POST',
+							url : $scope.obData.zuul + '/inbound/order',
+							data : params,
+							headers : {
+								'Content-Type' : 'application/json',
+							}
+						});
+
+						response.success(function(data, status,
+								headers, config) {
+							var resp = {}
+							resp.status = status
+							resp.data = data
+							$scope.obData.createdOrder = resp;
+						});
+
+						response.error(function(data, status, headers,
+								config) {
+							var error = {
+								status : status,
+								details : data
+							}
+							$scope.obData.error = error;
+						});
+					}
+					// update order							
+					$scope.obData.UpdateOrder = function() {
+						delete $scope.obData.updatedOrder;
+						delete $scope.obData.error;
+
+						var params = {
+							id:  $scope.orderIdUpd,
+							description : $scope.orderDescriptionUpd
+						};
+
+						var response = $http({
+							method : 'PUT',
+							url : $scope.obData.zuul + '/inbound/order',
+							data : params,
+							headers : {
+								'Content-Type' : 'application/json',
+							}
+						});
+
+						response.success(function(data, status,
+								headers, config) {
+							var resp = {}
+							resp.status = status
+							resp.data = data
+							$scope.obData.updatedOrder = resp;
+						});
+
+						response.error(function(data, status, headers,
+								config) {
+							var error = {
+								status : status,
+								details : data
+							}
+							$scope.obData.error = error;
+						});
+					}
+					// delete order							
+					$scope.obData.DeleteOrder = function() {
+						delete $scope.obData.deletedOrder;
+						delete $scope.obData.error;
+
+						var response = $http({
+							method : 'DELETE',
+							url : $scope.obData.zuul + '/inbound/order/' + $scope.orderIdDelete,
+							data : {},
+							headers : {
+								'Content-Type' : 'application/json',
+							}
+						});
+
+						response.success(function(data, status,
+								headers, config) {
+							var resp = {}
+							resp.status = status
+							resp.data = data
+
+							$scope.obData.deletedOrder = data;
+						});
+
+						response.error(function(data, status, headers,
+								config) {
+							var error = {
+								status : status,
+								details : data
+							}
+							$scope.obData.error = error;
+						});
+					}
+				});
+	</script>
+	<script>
+	function popup() {
+		settings=
+			"toolbar=no,location=no,directories=no,"+
+			"status=no,menubar=no,scrollbars=yes,"+
+			"resizable=yes,width=400,height=200";
+		popupwindow=window.open("/popup",'',settings);
+		if (window.focus) {popupwindow.focus()}
+		return false;
+	}	
+	</script>
+</body>
+</html>

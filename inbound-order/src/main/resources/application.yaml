@@ -1,0 +1,64 @@
+spring:
+  application:
+    name: inbound
+  cloud:
+    config:
+      enabled: false
+  datasource:
+    url: jdbc:mysql://localhost:3306/gmax?useSSL=false
+    username: gmax
+    password: gmax
+    driver-class-name: com.mysql.jdbc.Driver
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+      naming.strategy: org.hibernate.cfg.ImprovedNamingStrategy
+    properties:
+      hibernate.dialect: org.hibernate.dialect.MySQL5Dialect
+
+server:
+  port: 9000
+
+security:
+  user:
+    password: '{cipher}330aa9be4f57f02b0a19df4ebb4f1e8646993b53e6f62e70424e8bfe15ee13db'
+  oauth2:
+    resource:
+      id: ${spring.application.name}
+      jwt:
+        key-value:
+          -----BEGIN PUBLIC KEY-----
+          MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhlum7CNqR/6XfQ2fuXoJ
+          +h86VVJ2wqMokAX6dotETbS9s79TIp1aSYx1XZ/PpcrYK5gAZkLvZer5abLNntVQ
+          mh4AcDTisnCyrdYLVmr9ZjzvsBr7Jca7uYRigC+CtnV6nEwz4t2L1WWk3EIdZLvB
+          vfjDyRDM5yLjdfgZqRxM6uyVmY4q6lLbWSTz4107gdsw6+ucTwwZS0VdBR/97aqg
+          9myHdPut7krnyPFuCWdzSPyD1NTyDCCS3f28JxyMlB6sHt+//bojSq9ByxGc38Pu
+          b2ZqCPrS5vMUJrfkP/0OGeZx+vENMiBG7XBQ7kjJqwlcZlqZu/w5BBqd5kPlvY9N
+          vwIDAQAB
+          -----END PUBLIC KEY-----
+
+eureka:
+  instance:
+    leaseRenewalIntervalInSeconds: 5
+    leaseExpirationDurationInSeconds: 10
+    hostname: localhost
+    preferIpAddress: true
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:8761/eureka/
+
+info:
+  component: ${spring.application.name}
+  description: Order REST API
+
+logging:
+  file: ${spring.application.name}.log
+  path: /var/log/cloud/inbound
+
+endpoints:
+  shutdown:
+    enabled: true
+  

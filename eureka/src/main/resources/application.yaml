@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: eureka
+  cloud:
+    config:
+      enabled: false
+
+server:
+  port: 8761
+
+info:
+  component: Eureka
+  description: Service Registry (Discovery)
+
+eureka:
+  instance:
+    leaseRenewalIntervalInSeconds: 5
+    leaseExpirationDurationInSeconds: 10
+    hostname: localhost
+    preferIpAddress: true
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+  server:
+    responseCacheUpdateIntervalMs: 500
+    renewalThresholdUpdateIntervalMs: 10000
+    responseCacheAutoExpirationInSeconds: 1
+    evictionIntervalTimerInMs: 1000
+
+logging:
+  file: ${spring.application.name}.log
+  path: /var/log/eureka
+
+endpoints:
+  shutdown:
+    enabled: true

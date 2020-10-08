@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: oauth2
+  cloud:
+    config:
+      enabled: false
+  datasource:
+    url: jdbc:mysql://localhost/gmax
+    username: gmax
+    password: '{cipher}7e47b4fd8c5eb24ac812998b2441e0fa382bcc07ccd06158ca8b35f69ac7b023'
+    driver-class-name: com.mysql.jdbc.Driver
+
+server:
+  port: 8887
+  contextPath: /uaa
+
+info:
+  component: OAuth2
+  description: OAuth2 Server
+
+security:
+  user:
+    password: '{cipher}330aa9be4f57f02b0a19df4ebb4f1e8646993b53e6f62e70424e8bfe15ee13db'
+  oauth2:
+    resource:
+      token-type: jwt
+      key-store: jwt.jks
+      key-store-password: '{cipher}05fd0a7add44c273c09c6ef2aee98302068fddb27570b9b3baf9f0cbb40ec886'
+      keyAlias: ria
+
+logging:
+  file: ${spring.application.name}.log
+  path: /var/log/gmax-cloud
+#  level: 
+#    org.springframework: TRACE
+
+endpoints:
+  shutdown:
+    enabled: true

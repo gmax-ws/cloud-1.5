@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: turbine-dashboard
+  cloud:
+    config:
+      uri: http://localhost:8888
+      username: config
+      password: '{cipher}d8a78a0a57e16e9cc4ac956a415efa6bc1b84a478a353a321a8d503c54aa6acd'
+
+server:
+  port: 8844
+
+logging:
+  file: ${spring.application.name}.log
+  path: /var/log/cloud/turbine
