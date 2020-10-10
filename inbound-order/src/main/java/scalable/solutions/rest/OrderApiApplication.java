@@ -17,6 +17,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
@@ -52,10 +53,10 @@ public class OrderApiApplication {
 	private static final Logger LOG = LoggerFactory.getLogger(OrderApiApplication.class);
 
 	public static void main(String[] args) {
-		SpringApplication.run(OrderApiApplication.class, args).close();
+		SpringApplication.run(OrderApiApplication.class, args);
 	}
 
-    @Bean
+	@Bean
     public Executor asyncExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(2);
@@ -129,6 +130,26 @@ public class OrderApiApplication {
 		@Override
 		public void configure(HttpSecurity http) throws Exception {
 			http.authorizeRequests().antMatchers("/**").permitAll().anyRequest().authenticated();
+		}
+	}
+
+	@Configuration
+	public static class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http.authorizeRequests()
+					.antMatchers("/**")
+					.permitAll()
+					.and()
+					.authorizeRequests()
+					.antMatchers("/h2-console/**")
+					.permitAll()
+					.and()
+			        .csrf()
+					.disable()
+					.headers()
+					.frameOptions()
+					.disable();
 		}
 	}
 }
